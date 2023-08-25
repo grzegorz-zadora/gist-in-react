@@ -7,6 +7,9 @@
     "publishPackage": "bash ../../scripts/publishPackage.sh",
     "build": "bash ../../scripts/build.sh"
   },
+  "dependencies": {
+    "private-dom-utils": "*"
+  },
   "peerDependencies": {
     "react": "18.x",
     "react-dom": "18.x",
