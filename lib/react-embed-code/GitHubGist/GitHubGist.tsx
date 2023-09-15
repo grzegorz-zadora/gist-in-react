@@ -7,16 +7,18 @@ export const GitHubGist = ({
   title,
   resizing,
   className,
-  style = {
-    border: 0,
-    padding: 0,
-  },
+  style = defaultStyle,
+  loader,
 }: Props) => {
   if (resizing !== "autoAdjustHeightOnMount") {
     throw new Error("Only autoAdjustHeightOnMount is supported");
   }
 
   const iframeRef = useIframeRef();
+
+  const [status, setStatus] = useState<"pending" | "resolved" | "rejected">(
+    "pending",
+  );
 
   const [iframeHeightPx, setIframeHeightPx] = useState(0);
 
@@ -30,31 +32,82 @@ export const GitHubGist = ({
         iframe,
       });
 
+      logger("script installed");
+
       const iframeDocument = getIframeDocument(iframe);
 
       iframeDocument.body.setAttribute("style", "margin: 0px");
 
-      // TODO: find better way determine final height of the content of the
-      // iframe. That works kind of sketchy.
-      [...iframeDocument.querySelectorAll("link")].forEach((each) => {
-        each.addEventListener("load", () => {
-          setIframeHeightPx(iframeDocument.documentElement.scrollHeight);
-        });
-      });
+      logger("style reset");
+
+      const linkElements = [...iframeDocument.querySelectorAll("link")];
+
+      const linksElementsLoading = linkElements.map(
+        (linkElement) =>
+          new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(
+              () =>
+                reject(new Error("Cannot load GithubGist in reasonable time")),
+              reasonableTime,
+            );
+
+            linkElement.addEventListener(
+              "load",
+              () => {
+                clearTimeout(timeout);
+                resolve();
+              },
+              {
+                once: true,
+              },
+            );
+          }),
+      );
+
+      // Wait for all linked resources to be loaded before setting the height
+      await Promise.all(linksElementsLoading);
+
+      setIframeHeightPx(iframeDocument.documentElement.scrollHeight);
+      logger("iframe height set");
     };
 
-    void load();
+    logger("iframe load started...");
+    void load()
+      .then(() => {
+        logger("iframe load finished");
+        return setStatus("resolved");
+      })
+      .catch(() => {
+        logger("iframe load failed");
+        return setStatus("rejected");
+      });
   }, [iframeRef]);
 
+  useEffect(() => {
+    logger({ iframeHeightPx });
+  }, [iframeHeightPx]);
+
   return (
-    <iframe
-      ref={iframeRef.ref}
-      className={className}
-      height={iframeHeightPx}
-      style={style}
-      title={title}
-    />
+    <>
+      <iframe
+        ref={iframeRef.ref}
+        className={className}
+        style={{
+          height: iframeHeightPx,
+          visibility: status === "pending" ? "hidden" : "visible",
+          position: status === "pending" ? "absolute" : "static",
+          ...style,
+        }}
+        title={title}
+      />
+      {status === "pending" && loader}
+    </>
   );
+};
+
+const defaultStyle = {
+  border: 0,
+  padding: 0,
 };
 
 type Props = {
@@ -69,8 +122,9 @@ type Props = {
    * - `fill` - will adjust the size of the `<iframe />` to cover its container
    * - `none` - will not apply any adjustments to the `<iframe />`
    * (default behavior)
-   * - `{ ratio: number}` - `<iframe />` will have 100% of its container and
-   * then the height of the `<iframe />` will be adjusted to satisfy the ratio
+   * - `{ ratio: number}` - `<iframe />` will have 100% width of its container
+   * and then the height of the `<iframe />` will be adjusted to satisfy the
+   * ratio
    */
   resizing:
     | "autoAdjustHeightOnMount"
@@ -79,4 +133,22 @@ type Props = {
     | {
         ratio: number;
       };
+  loader?: JSX.Element;
+};
+
+const reasonableTime = 30000;
+
+let timestamp: number | null = null;
+
+const logger = (...messages: unknown[]) => {
+  if (process.env.NODE_ENV === "development") {
+    const lastTimestamp = timestamp ?? Date.now();
+    timestamp = Date.now();
+    const diff = Math.min(999, timestamp - lastTimestamp);
+    // eslint-disable-next-line no-console
+    console.debug(
+      `[ react-embed-code ] [ ${"00".concat(String(diff)).slice(-3)}ms ]`,
+      ...messages,
+    );
+  }
 };
