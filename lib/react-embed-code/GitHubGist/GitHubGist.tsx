@@ -40,6 +40,10 @@ export const GitHubGist = ({
 
       logger("style reset");
 
+      const aElements = [...iframeDocument.querySelectorAll("a")];
+
+      aElements.forEach((element) => element.setAttribute("target", "_blank"));
+
       const linkElements = [...iframeDocument.querySelectorAll("link")];
 
       const linksElementsLoading = linkElements.map(
@@ -48,7 +52,7 @@ export const GitHubGist = ({
             const timeout = setTimeout(
               () =>
                 reject(new Error("Cannot load GithubGist in reasonable time")),
-              reasonableTime,
+              mountTimeoutMs,
             );
 
             linkElement.addEventListener(
@@ -136,7 +140,7 @@ type Props = {
   loader?: JSX.Element;
 };
 
-const reasonableTime = 30000;
+const mountTimeoutMs = 30000;
 
 let timestamp: number | null = null;
 
@@ -145,10 +149,11 @@ const logger = (...messages: unknown[]) => {
     const lastTimestamp = timestamp ?? Date.now();
     timestamp = Date.now();
     const diff = Math.min(999, timestamp - lastTimestamp);
+
+    // Formatted allows for max of 3 digits
+    const formatedDiff = "00".concat(String(diff)).slice(-3);
+
     // eslint-disable-next-line no-console
-    console.debug(
-      `[ react-embed-code ] [ ${"00".concat(String(diff)).slice(-3)}ms ]`,
-      ...messages,
-    );
+    console.debug(`[ react-embed-code ] [ ${formatedDiff}ms ]`, ...messages);
   }
 };
