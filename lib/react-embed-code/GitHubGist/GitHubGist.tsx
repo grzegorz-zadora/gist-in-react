@@ -11,6 +11,7 @@ export const GitHubGist = ({
   style = defaultStyle,
   loader,
   gistSource,
+  onLoadGistContent,
 }: Props) => {
   if (resizing !== "autoAdjustHeightOnMount") {
     throw new Error("Only autoAdjustHeightOnMount is supported");
@@ -82,6 +83,7 @@ export const GitHubGist = ({
       await Promise.all(linksElementsLoading);
 
       setIframeHeightPx(iframeDocument.documentElement.scrollHeight);
+
       logDebug("iframe height set");
     };
 
@@ -101,6 +103,29 @@ export const GitHubGist = ({
   useEffect(() => {
     logDebug({ iframeHeightPx });
   }, [iframeHeightPx]);
+
+  useEffect(() => {
+    if (onLoadGistContent === undefined || status !== "resolved") {
+      logDebug("Skipping onLoadGistContent");
+      return;
+    }
+
+    logDebug("Firing onLoadGistContent");
+
+    const iframe = iframeRef.getIframeElement();
+    const iframeDocument = getIframeDocument(iframe);
+
+    const gistDataElement = [
+      ...iframeDocument.getElementsByClassName("gist-data"),
+    ].at(0);
+
+    if (!gistDataElement) {
+      logError('Cannot find element with class="gist-data"');
+      return;
+    }
+
+    onLoadGistContent(gistDataElement.textContent ?? "");
+  }, [iframeRef, onLoadGistContent, status]);
 
   return (
     <>
@@ -153,6 +178,12 @@ type Props = {
    * A gist's embed code (`<script src="...`) or a gist's URL (`https://gist.github.com/{{username}}/{{gist-id}}`)
    */
   gistSource: string;
+  /**
+   * Once a gist is loaded the provided callback will be fired with the gist's
+   * content as a raw string. You can use that to run the code inside the
+   * gist for instance.
+   */
+  onLoadGistContent?: (gistContent: string) => void;
 };
 
 const mountTimeoutMs = 30000;

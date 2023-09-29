@@ -1,19 +1,24 @@
 "use client";
 
-import { GitHubGist } from "react-embed-code/GitHubGist";
-import { Spinner } from "./Spinner";
+import Link from "next/link";
 
 const Page = () => (
   <>
-    <h1>
-      <code>resizing: autoAdjustHeightOnMount</code>
-    </h1>
-    <GitHubGist
-      title="Example code"
-      resizing="autoAdjustHeightOnMount"
-      loader={<Spinner />}
-      gistSource={`<script src="https://gist.github.com/grzegorz-zadora/97a7b89b14fe7194c7d0669445ff7355.js"></script>`}
-    />
+    <h1>Examples</h1>
+    <nav>
+      <ul>
+        <li>
+          <Link href="/auto-adjust-height-on-mount">
+            Auto adjust to the height of a gist's content
+          </Link>
+        </li>
+        <li>
+          <Link href="/run-code-from-gist">
+            Run JavaScript code from a gist
+          </Link>
+        </li>
+      </ul>
+    </nav>
   </>
 );
 
