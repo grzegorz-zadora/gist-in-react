@@ -2,6 +2,7 @@ import { CSSProperties, useEffect, useState } from "react";
 import { useIframeRef } from "private-dom-utils/useIframeRef";
 import { installScriptToIframe } from "private-dom-utils/installScriptToIframe";
 import { getIframeDocument } from "private-dom-utils/getIframeDocument";
+import { getScriptSource } from "./getScriptSource";
 
 export const GitHubGist = ({
   title,
@@ -9,6 +10,7 @@ export const GitHubGist = ({
   className,
   style = defaultStyle,
   loader,
+  gistSource,
 }: Props) => {
   if (resizing !== "autoAdjustHeightOnMount") {
     throw new Error("Only autoAdjustHeightOnMount is supported");
@@ -26,19 +28,27 @@ export const GitHubGist = ({
     const iframe = iframeRef.getIframeElement();
 
     const load = async () => {
+      const scriptSourceResult = getScriptSource(gistSource);
+
+      if ("error" in scriptSourceResult) {
+        logError(scriptSourceResult.error);
+        return;
+      }
+
+      const { scriptSource } = scriptSourceResult;
+
       await installScriptToIframe({
-        scriptSource:
-          "https://gist.github.com/grzegorz-zadora/97a7b89b14fe7194c7d0669445ff7355.js",
+        scriptSource,
         iframe,
       });
 
-      logger("script installed");
+      logDebug("script installed");
 
       const iframeDocument = getIframeDocument(iframe);
 
       iframeDocument.body.setAttribute("style", "margin: 0px");
 
-      logger("style reset");
+      logDebug("style reset");
 
       const aElements = [...iframeDocument.querySelectorAll("a")];
 
@@ -72,23 +82,24 @@ export const GitHubGist = ({
       await Promise.all(linksElementsLoading);
 
       setIframeHeightPx(iframeDocument.documentElement.scrollHeight);
-      logger("iframe height set");
+      logDebug("iframe height set");
     };
 
-    logger("iframe load started...");
+    logDebug("iframe load started...");
+
     void load()
       .then(() => {
-        logger("iframe load finished");
+        logDebug("iframe load finished");
         return setStatus("resolved");
       })
       .catch(() => {
-        logger("iframe load failed");
+        logDebug("iframe load failed");
         return setStatus("rejected");
       });
-  }, [iframeRef]);
+  }, [gistSource, iframeRef]);
 
   useEffect(() => {
-    logger({ iframeHeightPx });
+    logDebug({ iframeHeightPx });
   }, [iframeHeightPx]);
 
   return (
@@ -138,13 +149,24 @@ type Props = {
         ratio: number;
       };
   loader?: JSX.Element;
+  /**
+   * A gist's embed code (`<script src="...`) or a gist's URL (`https://gist.github.com/{{username}}/{{gist-id}}`)
+   */
+  gistSource: string;
 };
 
 const mountTimeoutMs = 30000;
 
 let timestamp: number | null = null;
 
-const logger = (...messages: unknown[]) => {
+const logError = (...messages: unknown[]) => {
+  if (process.env.NODE_ENV === "development") {
+    // eslint-disable-next-line no-console
+    console.error(`[ react-embed-code ]`, ...messages);
+  }
+};
+
+const logDebug = (...messages: unknown[]) => {
   if (process.env.NODE_ENV === "development") {
     const lastTimestamp = timestamp ?? Date.now();
     timestamp = Date.now();
