@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
 import { useIframeRef } from "private-dom-utils/useIframeRef";
 import { installScriptToIframe } from "private-dom-utils/installScriptToIframe";
 import { getIframeDocument } from "private-dom-utils/getIframeDocument";
@@ -13,7 +13,10 @@ export const GitHubGist = ({
   gistSource,
   onLoadGistContent,
 }: Props) => {
-  if (resizing !== "autoAdjustHeightOnMount") {
+  if (
+    resizing !== "autoAdjustHeightOnMount" &&
+    resizing !== "autoAdjustWidthAndHeightOnMount"
+  ) {
     throw new Error("Only autoAdjustHeightOnMount is supported");
   }
 
@@ -22,8 +25,42 @@ export const GitHubGist = ({
   const [status, setStatus] = useState<"pending" | "resolved" | "rejected">(
     "pending",
   );
+  const [iframeWidthPx, setIframeWidthPx] = useState<number | undefined>();
+  const [iframeHeightPx, setIframeHeightPx] = useState<number | undefined>();
 
-  const [iframeHeightPx, setIframeHeightPx] = useState(0);
+  const adjusters = useMemo(
+    () => ({
+      autoAdjustHeightOnMount: (documentElement: HTMLElement) => {
+        const heightPx = documentElement.scrollHeight;
+        logDebug("autoAdjustHeightOnMount", {
+          heightPx,
+        });
+        return setIframeHeightPx(heightPx);
+      },
+      autoAdjustWidthAndHeightOnMount: (documentElement: HTMLElement) => {
+        const heightPx = documentElement.scrollHeight;
+        const gistDataElement = documentElement.querySelector("tr");
+
+        if (!gistDataElement) {
+          logError("Cannot find tr element!");
+          return;
+        }
+
+        const widthPx = gistDataElement.scrollWidth;
+
+        logDebug("autoAdjustWidthAndHeightOnMount", {
+          heightPx,
+          widthPx,
+        });
+
+        setIframeHeightPx(heightPx);
+        /* TODO: figure out why the measurement is not exact and we need to add
+         2px */
+        setIframeWidthPx(widthPx + 2);
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     const iframe = iframeRef.getIframeElement();
@@ -82,9 +119,9 @@ export const GitHubGist = ({
       // Wait for all linked resources to be loaded before setting the height
       await Promise.all(linksElementsLoading);
 
-      setIframeHeightPx(iframeDocument.documentElement.scrollHeight);
-
-      logDebug("iframe height set");
+      if (resizing in adjusters) {
+        adjusters[resizing](iframeDocument.documentElement);
+      }
     };
 
     logDebug("iframe load started...");
@@ -98,11 +135,7 @@ export const GitHubGist = ({
         logDebug("iframe load failed");
         return setStatus("rejected");
       });
-  }, [gistSource, iframeRef]);
-
-  useEffect(() => {
-    logDebug({ iframeHeightPx });
-  }, [iframeHeightPx]);
+  }, [adjusters, gistSource, iframeRef, resizing]);
 
   useEffect(() => {
     if (onLoadGistContent === undefined || status !== "resolved") {
@@ -133,7 +166,9 @@ export const GitHubGist = ({
         ref={iframeRef.ref}
         className={className}
         style={{
+          boxSizing: "border-box",
           height: iframeHeightPx,
+          width: iframeWidthPx,
           visibility: status === "pending" ? "hidden" : "visible",
           position: status === "pending" ? "absolute" : "static",
           ...style,
@@ -168,6 +203,7 @@ type Props = {
    */
   resizing:
     | "autoAdjustHeightOnMount"
+    | "autoAdjustWidthAndHeightOnMount"
     | "fill"
     | "none"
     | {

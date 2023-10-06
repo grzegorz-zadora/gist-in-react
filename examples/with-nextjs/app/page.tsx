@@ -9,7 +9,12 @@ const Page = () => (
       <ul>
         <li>
           <Link href="/auto-adjust-height-on-mount">
-            Auto adjust to the height of a gist's content
+            Auto adjust to the height of the gist's content
+          </Link>
+        </li>
+        <li>
+          <Link href="/auto-adjust-height-and-width-on-mount">
+            Auto adjust to the height and width of the gist's content
           </Link>
         </li>
         <li>
