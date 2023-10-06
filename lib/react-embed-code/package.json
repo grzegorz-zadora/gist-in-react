@@ -8,8 +8,10 @@
     "build": "bash ../../scripts/build.sh"
   },
   "dependencies": {
+    "logger": "*",
     "memoize-one": "^6.0.0",
-    "private-dom-utils": "*"
+    "private-dom-utils": "*",
+    "safe": "*"
   },
   "peerDependencies": {
     "react": "18.x",
