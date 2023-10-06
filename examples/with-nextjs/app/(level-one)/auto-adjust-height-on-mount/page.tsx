@@ -5,7 +5,7 @@ import { Spinner } from "../../../common/Spinner";
 
 const Page = () => (
   <>
-    <h1> Auto adjust to the height of the gist's content</h1>
+    <h1>Auto adjust to the height of the gist's content</h1>
     <GitHubGist
       title="Example code"
       resizing="autoAdjustHeightOnMount"

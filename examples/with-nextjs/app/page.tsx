@@ -18,6 +18,11 @@ const Page = () => (
           </Link>
         </li>
         <li>
+          <Link href="/auto-adjust-width-on-mount">
+            Auto adjust to the width of the gist's content
+          </Link>
+        </li>
+        <li>
           <Link href="/run-code-from-gist">
             Run JavaScript code from a gist
           </Link>

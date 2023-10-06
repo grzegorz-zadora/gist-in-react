@@ -15,7 +15,8 @@ export const GitHubGist = ({
 }: Props) => {
   if (
     resizing !== "autoAdjustHeightOnMount" &&
-    resizing !== "autoAdjustWidthAndHeightOnMount"
+    resizing !== "autoAdjustWidthAndHeightOnMount" &&
+    resizing !== "autoAdjustWidthOnMount"
   ) {
     throw new Error("Only autoAdjustHeightOnMount is supported");
   }
@@ -54,6 +55,24 @@ export const GitHubGist = ({
         });
 
         setIframeHeightPx(heightPx);
+        /* TODO: figure out why the measurement is not exact and we need to add
+         2px */
+        setIframeWidthPx(widthPx + 2);
+      },
+      autoAdjustWidthOnMount: (documentElement: HTMLElement) => {
+        const gistDataElement = documentElement.querySelector("tr");
+
+        if (!gistDataElement) {
+          logError("Cannot find tr element!");
+          return;
+        }
+
+        const widthPx = gistDataElement.scrollWidth;
+
+        logDebug("autoAdjustWidth", {
+          widthPx,
+        });
+
         /* TODO: figure out why the measurement is not exact and we need to add
          2px */
         setIframeWidthPx(widthPx + 2);
@@ -190,20 +209,10 @@ type Props = {
   style?: CSSProperties;
   /** [Iframe must have a unique title property](https://www.w3.org/WAI/WCAG21/Techniques/html/H64) */
   title: string;
-  /**
-   * - `autoAdjustHeightOnMount` - will automatically adjust the height of the
-   * `<iframe />` to make it equal to the gist's height. However, until
-   * `<iframe />` is loaded it will have 0px height.
-   * - `fill` - will adjust the size of the `<iframe />` to cover its container
-   * - `none` - will not apply any adjustments to the `<iframe />`
-   * (default behavior)
-   * - `{ ratio: number}` - `<iframe />` will have 100% width of its container
-   * and then the height of the `<iframe />` will be adjusted to satisfy the
-   * ratio
-   */
   resizing:
     | "autoAdjustHeightOnMount"
     | "autoAdjustWidthAndHeightOnMount"
+    | "autoAdjustWidthOnMount"
     | "fill"
     | "none"
     | {
