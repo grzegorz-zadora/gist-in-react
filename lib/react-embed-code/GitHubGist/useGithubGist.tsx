@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
-import { useIframeRef } from "private-dom-utils/useIframeRef";
-import { installScriptToIframe } from "private-dom-utils/installScriptToIframe";
-import { getIframeDocument } from "private-dom-utils/getIframeDocument";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getScriptSource } from "./getScriptSource";
 import { logger } from "logger";
 import { Resizing, Status } from "./types";
 import { getKeys, includes } from "safe";
 import { resizers } from "./resizers";
+import {
+  useIframeRef,
+  waitForAllElementsToLoad,
+  setAttributeInAll,
+  installScriptToIframe,
+  getIframeDocument,
+} from "private-dom-utils";
 
 export const useGitHubGist = ({ resizing, gistSource }: Props) => {
   const iframeRef = useIframeRef();
@@ -17,10 +21,8 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
 
   const [iframeHeightPx, setIframeHeightPx] = useState<number | undefined>();
 
-  useEffect(() => {
-    const iframe = iframeRef.getIframeElement();
-
-    const load = async () => {
+  const loadIframe = useCallback(
+    async (iframe: HTMLIFrameElement) => {
       const scriptSourceResult = getScriptSource(gistSource);
 
       if ("error" in scriptSourceResult) {
@@ -39,42 +41,35 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
 
       const iframeDocument = getIframeDocument(iframe);
 
-      iframeDocument.body.setAttribute("style", "margin: 0px");
+      setAttributeInAll({
+        document: iframeDocument,
+        selector: "body",
+        attribute: {
+          name: "style",
+          value: "margin: 0px",
+        },
+      });
 
-      logger.debug("style reset");
+      setAttributeInAll({
+        document: iframeDocument,
+        selector: "a",
+        attribute: {
+          name: "target",
+          value: "_blank",
+        },
+      });
 
-      const aElements = [...iframeDocument.querySelectorAll("a")];
+      logger.debug("waiting for all <link> elements to load...");
+      await waitForAllElementsToLoad(iframeDocument, "link");
+      logger.debug("all <link> elements loaded");
 
-      aElements.forEach((element) => element.setAttribute("target", "_blank"));
-
-      const linkElements = [...iframeDocument.querySelectorAll("link")];
-
-      const linksElementsLoading = linkElements.map(
-        (linkElement) =>
-          new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(
-              () =>
-                reject(new Error("Cannot load GithubGist in reasonable time")),
-              mountTimeoutMs,
-            );
-
-            linkElement.addEventListener(
-              "load",
-              () => {
-                clearTimeout(timeout);
-                resolve();
-              },
-              {
-                once: true,
-              },
-            );
-          }),
-      );
-
-      // Wait for all linked resources to be loaded before setting the height
-      await Promise.all(linksElementsLoading);
-
+      // TODO: remove this once all resizings are supported
       if (!includes(getKeys(resizers), resizing)) {
+        logger.error(
+          `Unsupported resizing "${resizing}" prop. Only ${getKeys(
+            resizers,
+          ).join(",")} are supported`,
+        );
         return;
       }
 
@@ -84,20 +79,28 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
 
       setIframeWidthPx(widthPx);
       setIframeHeightPx(heightPx);
-    };
+    },
+    [gistSource, resizing],
+  );
 
-    logger.debug("iframe load started...");
+  useEffect(() => {
+    const handleLoadIframe = async () => {
+      const iframe = iframeRef.getIframeElement();
+      logger.debug("iframe load started...");
 
-    void load()
-      .then(() => {
+      try {
+        await loadIframe(iframe);
         logger.debug("iframe load finished");
         return setStatus("resolved");
-      })
-      .catch(() => {
+      } catch (error) {
         logger.debug("iframe load failed");
+        logger.error(error);
         return setStatus("rejected");
-      });
-  }, [gistSource, iframeRef, resizing]);
+      }
+    };
+
+    void handleLoadIframe();
+  }, [gistSource, iframeRef, loadIframe, resizing]);
 
   return useMemo(
     () => ({
@@ -122,5 +125,3 @@ type Props = {
    */
   gistSource: string;
 };
-
-const mountTimeoutMs = 30000;
