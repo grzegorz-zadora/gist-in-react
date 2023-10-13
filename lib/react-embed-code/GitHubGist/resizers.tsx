@@ -1,49 +1,64 @@
 import { logger } from "logger";
+import { CssSize, Resizing } from "./types";
 
-export const resizers = {
-  autoAdjustHeightOnMount: (documentElement: HTMLElement) => {
-    const heightPx = documentElement.scrollHeight;
+export const resizers: Record<
+  Resizing,
+  (documentElement: HTMLElement) => {
+    width: CssSize;
+    height: CssSize;
+  }
+> = {
+  autoAdjustHeightOnMount: (documentElement) => {
+    const height = documentElement.scrollHeight;
     logger.debug("autoAdjustHeightOnMount", {
-      heightPx,
+      height,
     });
-    return { heightPx, widthPx: undefined };
+    return { height, width: undefined };
   },
-  autoAdjustWidthAndHeightOnMount: (documentElement: HTMLElement) => {
-    const heightPx = documentElement.scrollHeight;
+  autoAdjustWidthAndHeightOnMount: (documentElement) => {
+    const height = documentElement.scrollHeight;
     const gistDataElement = documentElement.querySelector("tr");
 
     if (!gistDataElement) {
       logger.error("Cannot find tr element!");
-      return { heightPx, widthPx: undefined };
+      return { height, width: undefined };
     }
     /* TODO: figure out why the measurement is not exact and we need to add
      2px */
-    const widthPx = gistDataElement.scrollWidth + 2;
+    const width = gistDataElement.scrollWidth + 2;
 
     logger.debug("autoAdjustWidthAndHeightOnMount", {
-      heightPx,
-      widthPx,
+      height,
+      width,
     });
 
-    return { heightPx, widthPx };
+    return { height, width };
   },
-  autoAdjustWidthOnMount: (documentElement: HTMLElement) => {
+  autoAdjustWidthOnMount: (documentElement) => {
     const gistDataElement = documentElement.querySelector("tr");
 
     if (!gistDataElement) {
       logger.error("Cannot find tr element!");
-      return { heightPx: undefined, widthPx: undefined };
+      return { height: undefined, width: undefined };
     }
 
-    const widthPx = gistDataElement.scrollWidth + 2;
+    const width = gistDataElement.scrollWidth + 2;
 
     logger.debug("autoAdjustWidth", {
-      widthPx,
+      width,
     });
 
     return {
-      widthPx,
-      heightPx: undefined,
+      width,
+      height: undefined,
     };
   },
+  fill: () => ({
+    width: "100%",
+    height: "100%",
+  }),
+  none: () => ({
+    width: undefined,
+    height: undefined,
+  }),
 };

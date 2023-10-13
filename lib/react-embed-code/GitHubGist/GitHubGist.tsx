@@ -2,6 +2,7 @@ import { CSSProperties } from "react";
 import { useGitHubGist } from "./useGithubGist";
 import { OnLoadGistContent } from "./OnLoadGistContent";
 import { Resizing } from "./types";
+import { useIframeStyle } from "./useIframeStyle";
 
 export const GitHubGist = ({
   title,
@@ -12,16 +13,16 @@ export const GitHubGist = ({
   gistSource,
   onLoadGistContent,
 }: Props) => {
-  if (
-    resizing !== "autoAdjustHeightOnMount" &&
-    resizing !== "autoAdjustWidthAndHeightOnMount" &&
-    resizing !== "autoAdjustWidthOnMount"
-  ) {
-    throw new Error("Unsupported resizing");
-  }
-
   const githubGist = useGitHubGist({
     gistSource,
+    resizing,
+  });
+
+  const iframeStyle = useIframeStyle({
+    status: githubGist.status,
+    width: githubGist.iframeWidth,
+    height: githubGist.iframeHeight,
+    derivedStyle: style,
     resizing,
   });
 
@@ -37,10 +38,7 @@ export const GitHubGist = ({
       <iframe
         ref={githubGist.iframeRef.ref}
         className={className}
-        style={{
-          ...githubGist.style,
-          ...style,
-        }}
+        style={iframeStyle}
         title={title}
       />
       {githubGist.status === "pending" && loader}

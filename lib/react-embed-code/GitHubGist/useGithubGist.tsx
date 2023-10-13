@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getScriptSource } from "./getScriptSource";
 import { logger } from "logger";
-import { Resizing, Status } from "./types";
+import { CssSize, Resizing, Status } from "./types";
 import { getKeys, includes } from "safe";
 import { resizers } from "./resizers";
 import {
@@ -17,9 +17,9 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
 
   const [status, setStatus] = useState<Status>("pending");
 
-  const [iframeWidthPx, setIframeWidthPx] = useState<number | undefined>();
+  const [iframeWidth, setIframeWidth] = useState<CssSize>();
 
-  const [iframeHeightPx, setIframeHeightPx] = useState<number | undefined>();
+  const [iframeHeight, setIframeHeight] = useState<CssSize>();
 
   const loadIframe = useCallback(
     async (iframe: HTMLIFrameElement) => {
@@ -46,7 +46,7 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
         selector: "body",
         attribute: {
           name: "style",
-          value: "margin: 0px",
+          value: "margin:0px;height:100%",
         },
       });
 
@@ -75,10 +75,10 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
 
       const resize = resizers[resizing];
 
-      const { widthPx, heightPx } = resize(iframeDocument.documentElement);
+      const { width, height } = resize(iframeDocument.documentElement);
 
-      setIframeWidthPx(widthPx);
-      setIframeHeightPx(heightPx);
+      setIframeWidth(width);
+      setIframeHeight(height);
     },
     [gistSource, resizing],
   );
@@ -105,16 +105,11 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
   return useMemo(
     () => ({
       iframeRef,
-      style: {
-        boxSizing: "border-box",
-        height: iframeHeightPx,
-        width: iframeWidthPx,
-        visibility: status === "pending" ? "hidden" : "visible",
-        position: status === "pending" ? "absolute" : "static",
-      } as const,
       status,
+      iframeHeight,
+      iframeWidth,
     }),
-    [iframeHeightPx, iframeRef, iframeWidthPx, status],
+    [iframeHeight, iframeRef, iframeWidth, status],
   );
 };
 

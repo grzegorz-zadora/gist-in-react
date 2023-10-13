@@ -7,3 +7,5 @@ export type Resizing =
   | `ratio.${number}`;
 
 export type Status = "pending" | "resolved" | "rejected";
+
+export type CssSize = number | `${number}%` | undefined;

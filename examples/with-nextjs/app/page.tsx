@@ -27,6 +27,9 @@ const Page = () => (
             Run JavaScript code from a gist
           </Link>
         </li>
+        <li>
+          <Link href="/fill">Fill the container</Link>
+        </li>
       </ul>
     </nav>
   </>
