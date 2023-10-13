@@ -14,23 +14,26 @@ export const OnLoadGistContent = ({
     }
 
     logger.debug("Firing onLoadGistContent");
-
     const iframe = iframeRef.getIframeElement();
     const iframeDocument = getIframeDocument(iframe);
-
-    const gistDataElement = [
-      ...iframeDocument.getElementsByClassName("gist-data"),
-    ].at(0);
-
-    if (!gistDataElement) {
-      logger.error('Cannot find element with class="gist-data"');
-      return;
-    }
-
-    onLoadGistContent(gistDataElement.textContent ?? "");
+    const gistContent = getGistContent(iframeDocument);
+    onLoadGistContent(gistContent);
   }, [iframeRef, onLoadGistContent, status]);
 
   return null;
+};
+
+const getGistContent = (document: Document) => {
+  const gistDataElement = [...document.getElementsByClassName("gist-data")].at(
+    0,
+  );
+
+  if (!gistDataElement) {
+    logger.error('Cannot find element with class="gist-data"');
+    return "";
+  }
+
+  return gistDataElement.textContent ?? "";
 };
 
 type Props = {
