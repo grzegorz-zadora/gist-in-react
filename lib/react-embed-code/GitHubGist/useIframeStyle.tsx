@@ -25,6 +25,7 @@ export const useIframeStyle = ({
           status,
           resizing,
         }),
+        aspectRatio: getResizingRatio(resizing),
         ...derivedStyle,
       }) as const,
     [derivedStyle, height, resizing, status, width],
@@ -50,4 +51,9 @@ const getPosition = ({
   if (status === "pending") {
     return { position: "absolute" } as const;
   }
+};
+
+const getResizingRatio = (resizing: Resizing) => {
+  const ratio = Number(resizing.replace("ratio:", ""));
+  return Number.isNaN(ratio) ? undefined : ratio;
 };

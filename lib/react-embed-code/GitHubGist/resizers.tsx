@@ -1,13 +1,25 @@
 import { logger } from "logger";
 import { CssSize, Resizing } from "./types";
+import { getKeys, includes } from "safe";
 
-export const resizers: Record<
-  Resizing,
-  (documentElement: HTMLElement) => {
-    width: CssSize;
-    height: CssSize;
+export const getResizer = (resizing: Resizing) => {
+  if (resizing.startsWith("ratio:")) {
+    return ratioResizer;
   }
-> = {
+
+  if (includes(getKeys(resizers), resizing)) {
+    return resizers[resizing];
+  }
+
+  return null;
+};
+
+const ratioResizer: Resizer = () => ({
+  width: "100%",
+  height: "auto",
+});
+
+const resizers: Record<Resizing, Resizer> = {
   autoAdjustHeightOnMount: (documentElement) => {
     const height = documentElement.scrollHeight;
     logger.debug("autoAdjustHeightOnMount", {
@@ -61,4 +73,9 @@ export const resizers: Record<
     width: undefined,
     height: undefined,
   }),
+};
+
+type Resizer = (documentElement: HTMLElement) => {
+  width: CssSize;
+  height: CssSize;
 };

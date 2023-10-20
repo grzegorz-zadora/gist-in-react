@@ -4,8 +4,8 @@ export type Resizing =
   | "autoAdjustWidthOnMount"
   | "fill"
   | "none"
-  | `ratio.${number}`;
+  | `ratio:${number}`;
 
 export type Status = "pending" | "resolved" | "rejected";
 
-export type CssSize = number | `${number}%` | undefined;
+export type CssSize = number | `${number}%` | "auto" | undefined;

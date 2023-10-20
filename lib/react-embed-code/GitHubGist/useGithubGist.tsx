@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { getScriptSource } from "./getScriptSource";
 import { logger } from "logger";
 import { CssSize, Resizing, Status } from "./types";
-import { getKeys, includes } from "safe";
-import { resizers } from "./resizers";
+import { getResizer } from "./resizers";
 import {
   useIframeRef,
   waitForAllElementsToLoad,
@@ -63,17 +62,11 @@ export const useGitHubGist = ({ resizing, gistSource }: Props) => {
       await waitForAllElementsToLoad(iframeDocument, "link");
       logger.debug("all <link> elements loaded");
 
-      // TODO: remove this once all resizings are supported
-      if (!includes(getKeys(resizers), resizing)) {
-        logger.error(
-          `Unsupported resizing "${resizing}" prop. Only ${getKeys(
-            resizers,
-          ).join(",")} are supported`,
-        );
-        return;
-      }
+      const resize = getResizer(resizing);
 
-      const resize = resizers[resizing];
+      if (!resize) {
+        return logger.error(`Unsupported resizing value: "${resizing}".`);
+      }
 
       const { width, height } = resize(iframeDocument.documentElement);
 

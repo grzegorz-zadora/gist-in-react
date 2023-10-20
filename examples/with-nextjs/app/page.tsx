@@ -30,6 +30,9 @@ const Page = () => (
         <li>
           <Link href="/fill">Fill the container</Link>
         </li>
+        <li>
+          <Link href="/ratio">Aspect ratio</Link>
+        </li>
       </ul>
     </nav>
   </>
