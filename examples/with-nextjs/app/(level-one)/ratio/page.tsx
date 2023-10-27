@@ -14,7 +14,7 @@ const Page = () => {
       <GitHubGist
         title="Example code"
         resizing={`ratio:${16 / 9}`}
-        loader={<Spinner />}
+        Loader={Spinner}
         gistSource={`<script src="https://gist.github.com/grzegorz-zadora/97a7b89b14fe7194c7d0669445ff7355.js"></script>`}
       />
     </>

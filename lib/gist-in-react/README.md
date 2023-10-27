@@ -16,7 +16,7 @@ npm install gist-in-react
 
 ### Import the Component
 
-Import the `EmbedCode` component into your React application:
+Import the `GitHubGist` component into your React application:
 
 ```tsx
 import { GitHubGist } from "gist-in-react/GitHubGist";
@@ -30,17 +30,19 @@ Use the `GitHubGist` component within your application to embed a GitHub gist. A
 - gist embed code like `<script src="https://gist.github.com/{user}/{gist-id}.js"></script>`
 
 ```tsx
+    const Loader = () => <>wait...</>
+
     <GitHubGist
       title="Example code"
       resizing="autoAdjustWidthAndHeightOnMount"
-      loader={<Spinner />}
+      Loader={Loader}
       gistSource={`<script src="https://gist.github.com/{user}/{gist-id}.js"></script>`}
     />
 ```
 
 ### Customize the Appearance
 
-You can customize the appearance of the embedded gist by passing optional props to the `GitHubGist` component:
+You can customize the appearance of the embedded gist by passing props to the `GitHubGist` component:
 
 - `resizing` - how the gist will interact with the page's layout
   - `autoAdjustHeightOnMount` - the rendered gist will have 100% it's intrinsic height

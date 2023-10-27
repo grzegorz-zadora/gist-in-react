@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { useGitHubGist } from "./useGithubGist";
 import { OnLoadGistContent } from "./OnLoadGistContent";
 import { Resizing } from "./types";
@@ -9,7 +9,7 @@ export const GitHubGist = ({
   resizing,
   className,
   style = defaultStyle,
-  loader,
+  Loader,
   gistSource,
   onLoadGistContent,
 }: Props) => {
@@ -41,7 +41,7 @@ export const GitHubGist = ({
         style={iframeStyle}
         title={title}
       />
-      {githubGist.status === "pending" && loader}
+      {githubGist.status === "pending" && Loader && <Loader />}
     </>
   );
 };
@@ -57,7 +57,7 @@ type Props = {
   /** [Iframe must have a unique title property](https://www.w3.org/WAI/WCAG21/Techniques/html/H64) */
   title: string;
   resizing: Resizing;
-  loader?: JSX.Element;
+  Loader?: () => ReactNode;
   /**
    * A gist's embed code (`<script src="...`) or a gist's URL (`https://gist.github.com/{{username}}/{{gist-id}}`)
    */

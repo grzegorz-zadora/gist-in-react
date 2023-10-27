@@ -9,7 +9,7 @@ const Page = () => (
     <GitHubGist
       title="Example code"
       resizing="autoAdjustHeightOnMount"
-      loader={<Spinner />}
+      Loader={Spinner}
       gistSource="https://gist.github.com/grzegorz-zadora/8e2687997b58a5dc9d2154ae9159b880"
       onLoadGistContent={eval}
     />
