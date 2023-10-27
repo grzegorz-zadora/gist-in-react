@@ -8,3 +8,6 @@
 rm -rf dist
 npm i
 tsc -p ./tsconfig.json
+find . -name "*.js" -type f | while read -r filename; do
+  npx -y uglify-js "$filename" -c -m -o "$filename"
+done
