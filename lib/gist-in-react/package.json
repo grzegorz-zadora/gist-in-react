@@ -1,6 +1,6 @@
 {
   "name": "gist-in-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "main": "index.js",
     "prepublishOnly": "bash ../../scripts/prepublishOnly.sh",
