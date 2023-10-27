@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { getIframeDocument } from "private-dom-utils";
-import { logger } from "logger";
+import { getIframeDocument } from "../shared/dom-utils";
+import { logger } from "../shared/logger";
 
 export const OnLoadGistContent = ({
   onLoadGistContent,

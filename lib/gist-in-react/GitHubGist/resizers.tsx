@@ -1,6 +1,6 @@
-import { logger } from "logger";
+import { logger } from "../shared/logger";
 import { CssSize, Resizing } from "./types";
-import { getKeys, includes } from "safe";
+import { getKeys, includes } from "../shared/safe";
 
 export const getResizer = (resizing: Resizing) => {
   if (resizing.startsWith("ratio:")) {

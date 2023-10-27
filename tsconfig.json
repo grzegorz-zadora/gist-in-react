@@ -21,7 +21,7 @@
       "react", 
       "node", 
       "jest"
-    ],
+    ]
   },
   "include": ["**/*"],
   "exclude": ["node_modules", "./**/*/dist/**/*"],

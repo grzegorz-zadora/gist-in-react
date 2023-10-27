@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getScriptSource } from "./getScriptSource";
-import { logger } from "logger";
+import { logger } from "../shared/logger";
 import { CssSize, Resizing, Status } from "./types";
 import { getResizer } from "./resizers";
 import {
@@ -9,7 +9,7 @@ import {
   setAttributeInAll,
   installScriptToIframe,
   getIframeDocument,
-} from "private-dom-utils";
+} from "../shared/dom-utils";
 
 export const useGitHubGist = ({ resizing, gistSource }: Props) => {
   const iframeRef = useIframeRef();
