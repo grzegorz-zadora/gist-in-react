@@ -10,7 +10,7 @@ const nextConfig = {
   },
   reactStrictMode: false,
   swcMinify: true,
-  transpilePackages: ["react-embed-code"],
+  transpilePackages: ["gist-in-react"],
 };
 
 module.exports = nextConfig;

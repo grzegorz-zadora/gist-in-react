@@ -1,6 +1,6 @@
 "use client";
 
-import { GitHubGist } from "react-embed-code/GitHubGist";
+import { GitHubGist } from "gist-in-react/GitHubGist";
 import { Spinner } from "../../../common/Spinner";
 
 const Page = () => {

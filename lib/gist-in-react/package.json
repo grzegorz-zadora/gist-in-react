@@ -1,5 +1,5 @@
 {
-  "name": "react-embed-code",
+  "name": "gist-in-react",
   "version": "0.0.0",
   "scripts": {
     "main": "index.js",

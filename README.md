@@ -1,1 +1,1 @@
-# react-embed-code
+# gist-in-react

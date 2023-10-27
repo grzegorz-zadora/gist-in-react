@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "next": "^13.4.12",
-    "react-embed-code": "*"
+    "gist-in-react": "*"
   }
 }

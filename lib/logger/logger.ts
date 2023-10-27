@@ -4,7 +4,7 @@ export const logger = {
   error: (...messages: unknown[]) => {
     if (process.env.NODE_ENV === "development") {
       // eslint-disable-next-line no-console
-      console.error(`[ react-embed-code ]`, ...messages);
+      console.error(`[ gist-in-react ]`, ...messages);
     }
   },
   debug: (...messages: unknown[]) => {
@@ -17,7 +17,7 @@ export const logger = {
       const formattedDiff = "00".concat(String(diff)).slice(-3);
 
       // eslint-disable-next-line no-console
-      console.debug(`[ react-embed-code ] [ ${formattedDiff}ms ]`, ...messages);
+      console.debug(`[ gist-in-react ] [ ${formattedDiff}ms ]`, ...messages);
     }
   },
 };

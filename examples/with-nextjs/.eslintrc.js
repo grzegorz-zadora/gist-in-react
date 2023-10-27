@@ -4,7 +4,7 @@
  * @type {import("eslint").ESLint.ConfigData}
  */
 module.exports = {
-  extends: ["react-embed-code"],
+  extends: ["gist-in-react"],
   overrides: [
     {
       files: [

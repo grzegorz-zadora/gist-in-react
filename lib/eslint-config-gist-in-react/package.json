@@ -1,5 +1,5 @@
 {
-  "name": "eslint-config-react-embed-code",
+  "name": "eslint-config-gist-in-react",
   "version": "0.0.0",
   "main": "index.js",
   "dependencies": {

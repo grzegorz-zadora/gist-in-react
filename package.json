@@ -1,5 +1,5 @@
 {
-  "name": "react-embed-code",
+  "name": "gist-in-react-root",
   "version": "0.0.0",
   "description": "A high-performance, lightweight NPM library for seamlessly embedding GitHub Gists and GitLab snippets in React applications.",
   "scripts": {
@@ -23,7 +23,7 @@
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "eslint": "^8.46.0",
-    "eslint-config-react-embed-code": "*",
+    "eslint-config-gist-in-react": "*",
     "husky": "^8.0.3",
     "jest": "^29.6.2",
     "jest-environment-jsdom": "^29.6.2",

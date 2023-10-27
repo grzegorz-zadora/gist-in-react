@@ -5,7 +5,7 @@
  */
 module.exports = {
   root: true,
-  extends: ["react-embed-code"],
+  extends: ["gist-in-react"],
   overrides: [
     {
       files: ["*.d.ts", "./playwright.config.ts", "jest.config.ts"],
