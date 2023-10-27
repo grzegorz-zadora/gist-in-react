@@ -2,8 +2,7 @@
   "name": "gist-in-react",
   "version": "0.0.3",
   "repository": {
-    "url": "https://github.com/grzegorz-zadora/gist-in-react",
-    "directory": "https://github.com/grzegorz-zadora/gist-in-react/tree/main/lib/gist-in-react",
+    "url": "https://github.com/grzegorz-zadora/gist-in-react/tree/main/lib/gist-in-react",
     "type": "git"
   },
   "scripts": {
